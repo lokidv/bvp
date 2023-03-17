@@ -1,0 +1,58 @@
+history
+passwd
+exit
+apt update -y && apt upgrade -y && apt install supervisor apache2 nodejs zip wget nano  -y
+cd /home
+mkdir vpn
+cd vpn
+wget http://185.90.61.64/bvpn.zip
+cp bvpn.zip /var/www/html
+unzip bvpn.zip
+
+./openvpn-install.sh
+
+nano /etc/resolv.conf
+
+nano /etc/openvpn/server/server.conf
+
+
+nano /etc/supervisor/conf.d/Ovpn.conf
+
+[program:OvpnManager]
+directory=/home/vpn
+command=node bvpn.js
+autostart=true
+autorestart=true
+startretries=5
+stopasgroup=true
+; DISABLE THIS IT WILL GROW BIGGER, FOR TESTING JUST ENABLE THIS
+stderr_logfile=/home/vpn/dev_supervisor.err.log
+stdout_logfile=/home/vpn/dev_supervisor.out.log
+
+
+supervisorctl reread
+supervisorctl update
+systemctl restart openvpn
+
+
+apt-get install -y vnstat
+systemctl enable vnstat
+
+
+vnstat -u -i eth0
+
+ens3
+
+vnstat -u -i tun0
+
+chown -R vnstat:vnstat /var/lib/vnstat
+
+
+systemctl restart vnstat
+
+systemctl status vnstat
+
+vnstat
+
+supervisorctl status
+systemctl status openvpn
